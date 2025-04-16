@@ -1,0 +1,293 @@
+{
+  "name": "agente partida",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3827d3ee-7c77-4166-a21f-cd55fd4a8977",
+      "name": "When chat message received",
+      "webhookId": "1cd71ae0-cce6-4476-8fad-a19e9dfe676a"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Cuando el usuario diga algo como: \"Quiero jugar una partida con el personaje `nombre`\", sigue estos pasos cuidadosamente:\n\n---\n\n### 🔍 1. Búsqueda del personaje\n\n- Accede a la base de datos de postgres conectada.\n- Busca al personaje cuyo campo `nombre` coincida con el nombre proporcionado por el usuario. (Si no es identico preguntar por uno parecido)\n- Cada fila contiene como mínimo:\n  - `nombre`\n  - `ficcion` (género o tipo de mundo: fantasía, horror, sci-fi...)\n  - Estadísticas: Fuerza, Destreza, Constitución, Inteligencia, Sabiduría, Carisma\n  - `equipo` (descripción del equipo que puede afectar al combate)\n\n---\n### 1.1 Si el personaje no existe\n- crea el personaje con todas las estadisticas necesarios, si el jugador no te las dice todas rellenas las que faltan y las mandas a crear personaje. antes de mandarlas dile al jugador si esta conforme con las estadisticas y las muestras\n- status \"vivo\"\n### 🌍 2. Si el personaje existe:\n\n#### 2.1. Extrae el campo `ficcion` y genera una narración breve (100–200 palabras):\n- Describe **el mundo** según el tipo de ficción.\n- Incluye:\n  - El tono general del entorno (oscuro, esperanzador, decadente…)\n  - Elementos únicos del tipo de ficción\n  - Qué está ocurriendo en ese mundo ahora mismo\n  - Lugares, facciones o conflictos\n  - 1 o 2 **ganchos narrativos** para futuras aventuras\n\n#### 2.2. Estilo de narración:\n- Usa una voz inmersiva, como si fueras un narrador de rol.\n- No expliques reglas ni menciones estadísticas.\n- No hables como asistente o sistema, solo narra.\n\n#### 2.3. Cierre de la introducción:\n- Pregunta:  \n  _“¿Te gusta este universo para empezar tu aventura?”_\n- Si el usuario responde afirmativamente:\n  - Crea una pequeña **escena narrativa inicial** donde el personaje interactúe un poco con el mundo (2–3 turnos de diálogo o decisiones).\n  - Luego **da paso al combate**, siguiendo el punto 3.\n- Si el usuario responde negativamente:\n  - Genera un universo diferente (con un nuevo tono, estética o género dentro de la misma ficción).\n  - Repite la pregunta.\n\n---\n\n### ❌ 3. Si el personaje NO existe:\n- Responde con algo como:  \n  _“No encontré a ningún personaje llamado `nombre` en tu base de datos. ¿Quieres que lo creemos juntos?”_\n\n---\n\n### ⚔️ 4. COMBATE: cuando comience una batalla\n\n- Utiliza las **reglas de combate** definidas en el documento del Drive.\n- Entra a esa carpeta, localiza las reglas, y resume su funcionamiento básico para ti.\n- Aplica esas reglas fielmente durante la batalla.\n\n#### Durante cada ronda de combate:\n1. **Indica explícitamente las tiradas de dados necesarias** (ej. 1d20 + modificador).\n2. Realiza la tirada,usando el code dado en tools, muestra el resultado y la fórmula utilizada:\n   - Ejemplo: _Tirada de ataque: 1d20 (12) + Destreza (3) = 15_\n3. Menciona si el ataque/acierto/acción tuvo éxito o no, según la mecánica del juego.\n4. Ten en cuenta equipo, bonificaciones y condiciones especiales.\n5. Describe la acción de forma narrativa (qué sucede visualmente).\n\n🔄 Repite esto cada turno, alternando acciones del jugador y del oponente.\n\n💡 Si el jugador tiene dudas sobre reglas o quiere verlas, ofrece un resumen claro y directo desde el documento.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "6e0233ef-e47b-4aee-abb9-74800dc9f22d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        220
+      ],
+      "id": "3172a8d1-6a43-4ac9-835e-f00e141fddc7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "yBTxuQfKbD3jTzgN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        220
+      ],
+      "id": "0643a72a-375f-488d-8dec-6071c9de1af3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "name": "reglas",
+        "description": "Recibe las reglas de un pdf cargado como vectores",
+        "workflowId": {
+          "__rl": true,
+          "value": "8lyn9SPsF5xR1kfU",
+          "mode": "list",
+          "cachedResultName": "Cargas archivos"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        260
+      ],
+      "id": "889ae807-2360-4e9f-8ff4-c45240805559",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        680,
+        260
+      ],
+      "id": "bf01c76f-dfd5-499e-9bc5-7cba39088d7b",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "name": "dados",
+        "workflowId": {
+          "__rl": true,
+          "value": "JIq4jTY3euVPriPK",
+          "mode": "list",
+          "cachedResultName": "dados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        260
+      ],
+      "id": "eb769ee8-004c-40c6-b2de-b6e54d2ebc86",
+      "name": "Call n8n Workflow Tool1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all the data from postgress, Make sure you append the tables with correct schema. Every table is associated with some schema in the database",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"sql_query\", \"SQL Query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        940,
+        260
+      ],
+      "id": "1a6639cb-127e-41bf-a947-38a6fdc604a4",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "T1e4nI3s82yneie0",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "personajes",
+          "mode": "list",
+          "cachedResultName": "personajes"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        260
+      ],
+      "id": "2d749e15-cf09-4562-97b5-450366f600fa",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "T1e4nI3s82yneie0",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62e65d1e-7430-42f6-9822-9f5c26d290e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27e3992487872a4bbdeeeec335bd27a48a89bcd824a9f6e1b5668e751d144a85"
+  },
+  "id": "x2sZTAk0m8a3CIsy",
+  "tags": []
+}

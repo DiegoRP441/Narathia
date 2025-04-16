@@ -1,0 +1,16 @@
+Se adjunta el enlace a un vídeo de Nate Herk donde tener una visión global de la construcción de agentes con N8N.
+
+https://www.youtube.com/watch?v=ZHH3sr234zY
+
+api key pinecode
+
+pcsk_51sUDV_R1DPxbMjtzgk6bEzeypbk46SJvY4FAeY42p2fhWBusN4CYSZ7RBkSb5FDw5JJWc
+
+
+drive
+
+secreto cliente
+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
+
+id cliente
+398711023710-1ul0b2m2m7nk778jpvihve7dnam4s6r2.apps.googleusercontent.com
