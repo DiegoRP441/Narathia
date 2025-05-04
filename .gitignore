@@ -1,0 +1,25 @@
+# Ignorar node_modules en cualquier directorio
+**/node_modules/
+
+# Archivos de entorno
+.env
+.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de construcción
+**/build/
+**/dist/
+
+# Directorios de IDE
+.idea/
+.vscode/
+*.swp
+*.swo 
