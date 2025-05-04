@@ -1,0 +1,53 @@
+{
+  "name": "dados",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c6153a8d-c0ee-4164-b620-ef042d8b2d8a",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rollDice = (sides) => {\n  return Math.floor(Math.random() * sides) + 1;\n};\n\nconst d8 = rollDice(8);\nconst d10 = rollDice(10);\nconst d20 = rollDice(20);\n\nreturn { d8, d10, d20 };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "eb76f847-713a-4545-89ab-cfe7907d6d3d",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d979f09-a6bc-4fca-8e3c-0034728d3c81",
+  "meta": {
+    "instanceId": "ab9d8d86ec8710140cf1279eab342fd138a6650ecb9f8a67ff88dc5fe6ea0279"
+  },
+  "id": "E8nNCHqH8n0m2Ko8",
+  "tags": []
+}
