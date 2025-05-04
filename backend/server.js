@@ -154,6 +154,106 @@ app.get('/user', authenticateToken, async (req, res) => {
   }
 });
 
+// Guardar partida
+app.post('/save-game', authenticateToken, async (req, res) => {
+  try {
+    console.log('Recibida petición de guardar partida');
+    console.log('Usuario:', req.user);
+    console.log('Datos recibidos:', req.body);
+
+    const { gameState, gameName } = req.body;
+    
+    if (!gameState || !gameName) {
+      console.log('Faltan datos requeridos:', { gameState, gameName });
+      return res.status(400).json({ error: 'Estado del juego y nombre son requeridos' });
+    }
+
+    console.log('Intentando guardar en la base de datos...');
+    const result = await pool.query(
+      'INSERT INTO partidas (usuario_id, nombre, estado, ultima_modificacion) VALUES ($1, $2, $3, NOW()) RETURNING id',
+      [req.user.id, gameName, JSON.stringify(gameState)]
+    );
+
+    console.log('Partida guardada exitosamente:', result.rows[0]);
+    res.json({ 
+      success: true, 
+      gameId: result.rows[0].id 
+    });
+  } catch (error) {
+    console.error('Error detallado al guardar partida:', error);
+    if (error.code === '23503') { // Error de clave foránea
+      res.status(400).json({ error: 'Usuario no encontrado' });
+    } else if (error.code === '23505') { // Error de duplicado
+      res.status(400).json({ error: 'Ya existe una partida con ese nombre' });
+    } else {
+      res.status(500).json({ error: 'Error al guardar la partida: ' + error.message });
+    }
+  }
+});
+
+// Cargar partidas del usuario
+app.get('/games', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, nombre, ultima_modificacion FROM partidas WHERE usuario_id = $1 ORDER BY ultima_modificacion DESC',
+      [req.user.id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error al cargar partidas:', error);
+    res.status(500).json({ error: 'Error al cargar las partidas' });
+  }
+});
+
+// Cargar una partida específica
+app.get('/game/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('Recibida petición de cargar partida:', req.params.id);
+    console.log('Usuario:', req.user);
+
+    const result = await pool.query(
+      'SELECT estado FROM partidas WHERE id = $1 AND usuario_id = $2',
+      [req.params.id, req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      console.log('Partida no encontrada');
+      return res.status(404).json({ error: 'Partida no encontrada' });
+    }
+
+    console.log('Partida encontrada:', result.rows[0]);
+    const gameState = result.rows[0].estado;
+    console.log('Estado del juego:', gameState);
+
+    res.json({ 
+      gameState: gameState
+    });
+  } catch (error) {
+    console.error('Error detallado al cargar partida:', error);
+    res.status(500).json({ error: 'Error al cargar la partida: ' + error.message });
+  }
+});
+
+// Eliminar partida
+app.delete('/game/:id', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM partidas WHERE id = $1 AND usuario_id = $2 RETURNING id',
+      [req.params.id, req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Partida no encontrada' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al eliminar partida:', error);
+    res.status(500).json({ error: 'Error al eliminar la partida' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
