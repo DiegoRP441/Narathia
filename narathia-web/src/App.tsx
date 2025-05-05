@@ -91,7 +91,7 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://narathia-backend.vercel.app';
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
