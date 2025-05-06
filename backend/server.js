@@ -192,35 +192,6 @@ app.post('/save-game', authenticateToken, async (req, res) => {
   }
 });
 
-// Ruta para sobrescribir una partida existente
-app.post('/save-game/:id', authenticateToken, async (req, res) => {
-  try {
-    const { gameState, gameName } = req.body;
-    const gameId = req.params.id;
-    
-    // Verificar que la partida existe y pertenece al usuario
-    const gameCheck = await pool.query(
-      'SELECT * FROM partidas WHERE id = $1 AND usuario_id = $2',
-      [gameId, req.user.id]
-    );
-
-    if (gameCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Partida no encontrada' });
-    }
-
-    // Actualizar la partida existente
-    await pool.query(
-      'UPDATE partidas SET estado = $1, ultima_modificacion = NOW() WHERE id = $2',
-      [JSON.stringify(gameState), gameId]
-    );
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error al sobrescribir partida:', error);
-    res.status(500).json({ error: 'Error al sobrescribir la partida' });
-  }
-});
-
 // Cargar partidas del usuario
 app.get('/games', authenticateToken, async (req, res) => {
   try {

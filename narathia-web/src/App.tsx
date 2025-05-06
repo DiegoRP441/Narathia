@@ -161,18 +161,24 @@ function App() {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
+      console.log('Datos recibidos:', response.data);
+      
       if (response.data.gameState && response.data.gameState.messages) {
+        // Convertir los timestamps de string a Date
         const messagesWithDates = response.data.gameState.messages.map((msg: any) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
         }));
         
+        console.log('Mensajes procesados:', messagesWithDates);
         setMessages(messagesWithDates);
       } else {
+        console.error('No se encontraron mensajes en la partida');
         setError('No se encontraron mensajes en la partida');
       }
     } catch (error: any) {
       console.error('Error al cargar partida:', error);
+      console.error('Detalles del error:', error.response?.data);
       setError(error.response?.data?.error || 'Error al cargar la partida');
     }
   };
@@ -225,12 +231,6 @@ function App() {
       setError(null);
       if (!registerData.username || !registerData.email || !registerData.password) {
         setError('Por favor completa todos los campos');
-        return;
-      }
-
-      // Añadir validación de email
-      if (!isValidEmail(registerData.email)) {
-        setError('Por favor ingresa un email válido');
         return;
       }
 
@@ -792,7 +792,7 @@ function App() {
             Cancelar
           </Button>
           <Button
-            onClick={() => saveGame()}
+            onClick={saveGame}
             disabled={!gameName.trim()}
             sx={{
               background: 'linear-gradient(45deg, #ffd700 30%, #90caf9 90%)',
