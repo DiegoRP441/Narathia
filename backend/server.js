@@ -23,6 +23,7 @@ if (!process.env.JWT_SECRET) {
 // Conexión a la base de datos
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 // Verificar conexión a la base de datos
