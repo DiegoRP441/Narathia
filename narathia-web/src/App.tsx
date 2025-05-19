@@ -275,7 +275,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('https://boni443.app.n8n.cloud/webhook/chat', {
+      const response = await axios.post('https://boni444.app.n8n.cloud/webhook/chat', {
         message: input,
         userId: currentUser.id
       });
